@@ -1,6 +1,9 @@
 [workspace]
 resolver = "2"
-members = ["module-01-intro"]
+members = [
+    "module-01-intro", 
+    "module-02-http-essentials"
+]
 
 [workspace.dependencies]
 axum = "0.8.9"
