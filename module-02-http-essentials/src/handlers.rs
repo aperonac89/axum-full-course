@@ -1,4 +1,4 @@
-use crate::models::{Course, Describe, RepoLookup, RestRow, Student, describe_all, shout};
+use crate::models::{Course, Describe, RepoLookup, RestRow, Student, Subject, describe_all, shout};
 use crate::utils::coin_flip;
 use axum::extract::Request;
 use axum::http::StatusCode;
@@ -40,16 +40,17 @@ pub async fn serde_roundtrip() -> String {
 }
 
 pub async fn counter() -> String {
-    let counter = std::sync::Arc::new(std::sync::Mutex::new(0_u64));
-    let workers: u64 = 3;
-    let counts: u64 = 1000;
+    let counter = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
+    let workers: u64 = 8;
+    let counts: u64 = 5000;
     let mut handles = Vec::new();
     for worker in 0..workers {
         let count = std::sync::Arc::clone(&counter);
         handles.push(tokio::spawn(async move {
             for _ in 0..counts {
-                let mut guard = count.lock().expect("mutex was poisoned");
-                *guard += 1;
+                //let mut guard = count.lock().expect("mutex was poisoned");
+                //*guard += 1;
+                count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             }
             worker
         }));
@@ -65,7 +66,8 @@ pub async fn counter() -> String {
         );
     }
 
-    let total = *counter.lock().expect("mutex was still fine");
+    // let total = *counter.lock().expect("mutex was still fine");
+    let total = counter.load(std::sync::atomic::Ordering::SeqCst);
 
     format!(
         "{workers} workers x {counts} increments in one request = {total} (exactly 3000).\nWorkers finished in order: {finished:?}.\nArc = shared owner, Mutex = safety, spawn = concurrency.\n"
@@ -96,6 +98,10 @@ pub async fn maintenance() -> StatusCode {
     StatusCode::SERVICE_UNAVAILABLE
 }
 
+pub async fn gone() -> StatusCode {
+    StatusCode::GONE
+}
+
 pub async fn post_only() -> String {
     "Thank you for your posting.".to_string()
 }
@@ -124,6 +130,10 @@ pub async fn traits_generics() -> String {
         Box::new(Course {
             title: "Rust",
             modules: 30,
+        }),
+        Box::new(Subject {
+            title: "Mathematics",
+            hours_per_week: 8,
         }),
     ];
 

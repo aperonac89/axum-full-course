@@ -6,8 +6,8 @@ use axum::routing::{get, post};
 
 use crate::handlers::{
     anatomy, async_basic, bad_request, closures, counter, created, curl_cheatsheet, dashboard,
-    maintenance, maybe_fail, post_only, rate_limited, rest_map, serde_roundtrip, server_error,
-    teapot, traits_generics,
+    gone, maintenance, maybe_fail, post_only, rate_limited, rest_map, serde_roundtrip,
+    server_error, teapot, traits_generics,
 };
 use crate::utils::requested_port;
 
@@ -24,6 +24,7 @@ async fn main() {
         .route("/status/rate-limited", get(rate_limited))
         .route("/status/server-error", get(server_error))
         .route("/status/maintenance", get(maintenance))
+        .route("/status/gone", get(gone))
         .route("/post-only", post(post_only))
         .route("/maybe-fail", get(maybe_fail))
         .route("/trait-generics", get(traits_generics))
