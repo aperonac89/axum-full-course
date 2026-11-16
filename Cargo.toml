@@ -2,7 +2,8 @@
 resolver = "2"
 members = [
     "module-01-intro", 
-    "module-02-http-essentials"
+    "module-02-http-essentials",
+    "module-03-handler-responses"
 ]
 
 [workspace.dependencies]
