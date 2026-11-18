@@ -4,7 +4,7 @@ members = [
     "module-01-intro", 
     "module-02-http-essentials",
     "module-03-handler-responses"
-]
+, "module-04-routing"]
 
 [workspace.dependencies]
 axum = "0.8.9"
