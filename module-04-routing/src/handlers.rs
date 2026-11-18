@@ -67,7 +67,44 @@ pub async fn read_item(Path(item_id): Path<String>) -> (StatusCode, String) {
         },
         Err(_) => (
             StatusCode::NOT_FOUND,
-            format!("element introduces is not an item id"),
+            format!("element introduced is not an item id"),
         ),
+    }
+}
+
+pub async fn rename_item(
+    Path((item_id, item_name)): Path<(String, String)>,
+) -> (StatusCode, String) {
+    match item_id.parse::<u32>() {
+        Err(_) => (
+            StatusCode::NOT_FOUND,
+            format!("element introduced is not an item id"),
+        ),
+        Ok(id) => {
+            let old = item_store()
+                .lock()
+                .expect("lock is fine")
+                .insert(id, item_name.clone());
+            match old {
+                Some(_) => (StatusCode::OK, format!("item {id} renamed to {item_name}")),
+                None => (StatusCode::NOT_FOUND, format!("no item {id} to be renamed")),
+            }
+        }
+    }
+}
+
+pub async fn delete_item(Path(item_id): Path<String>) -> (StatusCode, String) {
+    match item_id.parse::<u32>() {
+        Err(_) => (
+            StatusCode::NOT_FOUND,
+            format!("Element introduced is not an item id"),
+        ),
+        Ok(id) => match item_store().lock().expect("lock is fine").remove(&id) {
+            None => (StatusCode::NOT_FOUND, format!("no item with id {id}")),
+            Some(name) => (
+                StatusCode::NO_CONTENT,
+                format!("item {id} with name {name} has been removed"),
+            ),
+        },
     }
 }

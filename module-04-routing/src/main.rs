@@ -1,9 +1,9 @@
 mod handlers;
 
-use crate::handlers::{create_item, dashboard, list_items, read_item};
+use crate::handlers::{create_item, dashboard, delete_item, list_items, read_item, rename_item};
 use axum::{
     Router,
-    routing::{get, post},
+    routing::{delete, get, post, put},
 };
 
 #[tokio::main]
@@ -11,7 +11,11 @@ async fn main() {
     let app = Router::new()
         .route("/", get(dashboard))
         .route("/items", get(list_items))
-        .route("/items/{item}", post(create_item).get(read_item));
+        .route(
+            "/items/{item}",
+            post(create_item).get(read_item).delete(delete_item),
+        )
+        .route("/items/{item_id}/{item_name}", put(rename_item));
 
     let port = std::env::var("AXUM_PORT")
         .ok()
