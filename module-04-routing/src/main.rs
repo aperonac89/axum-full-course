@@ -1,5 +1,7 @@
+mod api_handlers;
 mod handlers;
 
+use crate::api_handlers::api_handlers;
 use crate::handlers::{
     create_item, dashboard, delete_item, list_items, read_item, rename_item, wildcard_files,
 };
@@ -18,7 +20,8 @@ async fn main() {
             post(create_item).get(read_item).delete(delete_item),
         )
         .route("/items/{item_id}/{item_name}", put(rename_item))
-        .route("/files/{*path}", get(wildcard_files));
+        .route("/files/{*path}", get(wildcard_files))
+        .nest("/api/v1", api_handlers());
 
     let port = std::env::var("AXUM_PORT")
         .ok()
