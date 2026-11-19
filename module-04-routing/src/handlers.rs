@@ -1,4 +1,10 @@
-use axum::{extract::Path, http::StatusCode, response::Html};
+// Leson 1 - 2
+use axum::{
+    extract::Path,
+    http::StatusCode,
+    response::{Html, Json},
+};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::Mutex;
 
@@ -109,7 +115,6 @@ pub async fn delete_item(Path(item_id): Path<String>) -> (StatusCode, String) {
     }
 }
 
-
 // ============================================================================
 // LESSON 2: The wildcard route ({*path} matches whole remainder)
 // ============================================================================
@@ -125,4 +130,25 @@ pub async fn delete_item(Path(item_id): Path<String>) -> (StatusCode, String) {
 /// row into real `ServeDir` file serving via `nest_service`.
 pub async fn wildcard_files(Path(filepath): Path<String>) -> String {
     format!("wildcard matched remainder: {filepath}")
+}
+
+// LESSON 5: NOT FOUND
+pub async fn not_found_json() -> (StatusCode, Json<Value>) {
+    (
+        StatusCode::NOT_FOUND,
+        Json(json!({
+            "error": "Path provided wrong",
+            "hint": "Please check if the path is correct"
+        })),
+    )
+}
+
+pub async fn method_not_found_json() -> (StatusCode, Json<Value>) {
+    (
+        StatusCode::METHOD_NOT_ALLOWED,
+        Json(json!({
+            "error": "Method not allowed",
+            "hint": "Please check api documentation to check which methos are allowed for this endpoint"
+        })),
+    )
 }

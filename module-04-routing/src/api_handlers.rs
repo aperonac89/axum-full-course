@@ -1,9 +1,6 @@
-use axum::{
-    Router,
-    http::StatusCode,
-    response::Json,
-    routing::{get, post},
-};
+// LESSON 3
+
+use axum::{Router, http::StatusCode, response::Json, routing::get};
 use serde_json::{Value, json};
 
 pub fn api_handlers() -> Router {
@@ -13,10 +10,13 @@ pub fn api_handlers() -> Router {
 }
 
 pub async fn api_falback() -> (StatusCode, Json<Value>) {
-    (StatusCode::NOT_FOUND, Json(json!({
-        "error": "unknown path",
-        "hint": "the nested router owns fallbacks under its prefix"
-    })))
+    (
+        StatusCode::NOT_FOUND,
+        Json(json!({
+            "error": "unknown path",
+            "hint": "the nested router owns fallbacks under its prefix"
+        })),
+    )
 }
 
 pub async fn api_status() -> (StatusCode, Json<Value>) {
