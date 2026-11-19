@@ -1,6 +1,8 @@
 mod handlers;
 
-use crate::handlers::{create_item, dashboard, delete_item, list_items, read_item, rename_item};
+use crate::handlers::{
+    create_item, dashboard, delete_item, list_items, read_item, rename_item, wildcard_files,
+};
 use axum::{
     Router,
     routing::{delete, get, post, put},
@@ -15,7 +17,8 @@ async fn main() {
             "/items/{item}",
             post(create_item).get(read_item).delete(delete_item),
         )
-        .route("/items/{item_id}/{item_name}", put(rename_item));
+        .route("/items/{item_id}/{item_name}", put(rename_item))
+        .route("/files/{*path}", get(wildcard_files));
 
     let port = std::env::var("AXUM_PORT")
         .ok()

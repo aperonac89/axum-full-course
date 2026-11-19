@@ -108,3 +108,21 @@ pub async fn delete_item(Path(item_id): Path<String>) -> (StatusCode, String) {
         },
     }
 }
+
+
+// ============================================================================
+// LESSON 2: The wildcard route ({*path} matches whole remainder)
+// ============================================================================
+
+/// GET /files/{*path} — the wildcard row.
+///
+/// What it does: matches `/files/a/b/c.css` and hands the handler the whole
+/// remainder. Try `curl -s http://127.0.0.1:3004/files/assets/css/main.css`.
+/// Why it matters: `{*path}` is the 0.8 wildcard syntax (old `*path` panics at
+/// startup now). Params and wildcards — plus this same `Path` extractor with
+/// typed targets and proper rejections — are Module 05's core lesson; this
+/// row just proves routing's vocabulary first. Module 13 turns exactly this
+/// row into real `ServeDir` file serving via `nest_service`.
+pub async fn wildcard_files(Path(filepath): Path<String>) -> String {
+    format!("wildcard matched remainder: {filepath}")
+}
