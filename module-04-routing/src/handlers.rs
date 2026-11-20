@@ -1,9 +1,11 @@
 // Leson 1 - 2
 use axum::{
+    Router,
     body::Body,
     extract::{Path, Request},
     http::{HeaderValue, Method, StatusCode},
     response::{Html, IntoResponse, Json, Response},
+    routing::get,
 };
 use serde_json::{Value, json};
 use std::sync::Mutex;
@@ -74,7 +76,7 @@ pub async fn read_item(Path(item_id): Path<String>) -> (StatusCode, String) {
         },
         Err(_) => (
             StatusCode::NOT_FOUND,
-            format!("element introduced is not an item id"),
+            "element introduced is not an item id".to_owned(),
         ),
     }
 }
@@ -85,7 +87,7 @@ pub async fn rename_item(
     match item_id.parse::<u32>() {
         Err(_) => (
             StatusCode::NOT_FOUND,
-            format!("element introduced is not an item id"),
+            "element introduced is not an item id".to_owned(),
         ),
         Ok(id) => {
             let old = item_store()
@@ -104,7 +106,7 @@ pub async fn delete_item(Path(item_id): Path<String>) -> (StatusCode, String) {
     match item_id.parse::<u32>() {
         Err(_) => (
             StatusCode::NOT_FOUND,
-            format!("Element introduced is not an item id"),
+            "Element introduced is not an item id".to_owned(),
         ),
         Ok(id) => match item_store().lock().expect("lock is fine").remove(&id) {
             None => (StatusCode::NOT_FOUND, format!("no item with id {id}")),
@@ -195,3 +197,51 @@ pub async fn hand_written_service(request: Request) -> Result<Response, Infallib
         .insert("x-served-by", HeaderValue::from_static("service_fn"));
     Ok(response)
 }
+
+// Exercise 2
+pub struct User {
+    id: u32,
+    name: String,
+}
+
+fn user_store() -> &'static Mutex<Vec<User>> {
+    static USERS: std::sync::OnceLock<Mutex<Vec<User>>> = std::sync::OnceLock::new();
+    USERS.get_or_init(|| {
+        Mutex::new(vec![
+            User {
+                id: 1,
+                name: String::from("Name 1"),
+            },
+            User {
+                id: 2,
+                name: String::from("Name 2"),
+            },
+            User {
+                id: 3,
+                name: String::from("Name 3"),
+            },
+            User {
+                id: 4,
+                name: String::from("Name 4"),
+            },
+        ])
+    })
+}
+
+pub async fn list_user(Path(id): Path<u32>) -> (StatusCode, String) {
+    let elem = user_store().lock().expect("lock is ok");
+    let user = elem.iter().find(|user| user.id == id);
+
+    match user {
+        Some(user) => (
+            StatusCode::OK,
+            format!("user with id [{id}]: {}", user.name),
+        ),
+        None => (StatusCode::NOT_FOUND, "user not found".to_owned()),
+    }
+}
+
+pub fn users_router() -> Router {
+    Router::new().route("/{id}", get(list_user))
+}
+// End of Exercise 2
