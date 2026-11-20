@@ -1,12 +1,13 @@
 // Leson 1 - 2
 use axum::{
-    extract::Path,
-    http::StatusCode,
-    response::{Html, Json},
+    body::Body,
+    extract::{Path, Request},
+    http::{HeaderValue, Method, StatusCode},
+    response::{Html, IntoResponse, Json, Response},
 };
 use serde_json::{Value, json};
-use std::collections::HashMap;
 use std::sync::Mutex;
+use std::{collections::HashMap, convert::Infallible};
 
 pub async fn dashboard() -> Html<&'static str> {
     Html(
@@ -151,4 +152,46 @@ pub async fn method_not_found_json() -> (StatusCode, Json<Value>) {
             "hint": "Please check api documentation to check which methos are allowed for this endpoint"
         })),
     )
+}
+
+// LESSON 7:
+pub async fn echo_method(method: Method) -> String {
+    format!("method in the request: {method}")
+}
+
+pub async fn read_or_write(method: Method) -> String {
+    format!("server by one handler(GET / POST) -> Method: {method}")
+}
+
+pub async fn head_demo_get() -> (StatusCode, [(&'static str, &'static str); 1], &'static str) {
+    (
+        StatusCode::OK,
+        [("x-served-by", "GET Handler")],
+        "a body that HEAD never sees\n",
+    )
+}
+
+pub async fn head_demo_head() -> (StatusCode, [(&'static str, &'static str); 1]) {
+    (StatusCode::OK, [("x-served-by", "explicit HEAD handler")])
+}
+
+pub async fn typed_item(Path(id): Path<u32>) -> (StatusCode, String) {
+    match item_store().lock().expect("store lock is fine").get(&id) {
+        Some(item) => (StatusCode::OK, format!("typed item [{id}]: {item}")),
+        None => (StatusCode::NOT_FOUND, format!("no item with id [{id}]")),
+    }
+}
+
+// LESSON 8
+pub async fn docs_page() -> Html<&'static str> {
+    Html("<h1>Docs</h1><p>reached via /docs (and /docs/ redirects here)</p>")
+}
+
+pub async fn hand_written_service(request: Request) -> Result<Response, Infallible> {
+    let body = format!("hand written service saw path [{}]\n", request.uri().path());
+    let mut response = (StatusCode::OK, Body::from(body)).into_response();
+    response
+        .headers_mut()
+        .insert("x-served-by", HeaderValue::from_static("service_fn"));
+    Ok(response)
 }

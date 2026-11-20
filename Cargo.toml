@@ -1,13 +1,26 @@
 [workspace]
 resolver = "2"
 members = [
-    "module-01-intro", 
+    "module-01-intro",
     "module-02-http-essentials",
-    "module-03-handler-responses"
-, "module-04-routing"]
+    "module-03-handler-responses",
+    "module-04-routing",
+]
 
 [workspace.dependencies]
 axum = "0.8.9"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.54", features = ["full"] }
+axum-extra = { version = "0.12", features = [
+    "with-rejection",
+    "routing",
+    "typed-header",
+    "cached",
+] }
+tower = { version = "0.5", features = [
+    "timeout",
+    "util",
+    "limit",
+    "load-shed",
+] }
