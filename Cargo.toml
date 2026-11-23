@@ -4,7 +4,7 @@ members = [
     "module-01-intro",
     "module-02-http-essentials",
     "module-03-handler-responses",
-    "module-04-routing",
+    "module-04-routing", "module-05-extractors",
 ]
 
 [workspace.dependencies]
